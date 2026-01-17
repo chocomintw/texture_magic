@@ -3,85 +3,87 @@ name: Build and Release
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: windows-latest
-    
+
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '9.0.x'
-        
-    - name: Restore dependencies
-      run: dotnet restore TextureMagic/TextureMagic.csproj
-      
-    - name: Build self-contained executable
-      run: |
-        dotnet publish TextureMagic/TextureMagic.csproj `
-          --configuration Release `
-          --runtime win-x64 `
-          --self-contained true `
-          --output ./publish `
-          -p:PublishSingleFile=true `
-          -p:PublishReadyToRun=true `
-          -p:PublishTrimmed=false `
-          -p:IncludeNativeLibrariesForSelfExtract=true
-          
-    - name: Create release folder structure
-      run: |
-        mkdir release
-        copy publish\TextureMagic.exe release\
-        copy TextureMagic\icon.ico release\
-        echo Texture Magic - Texture manipulation tool for GTA V > release\README.txt
-        echo. >> release\README.txt
-        echo Features: >> release\README.txt
-        echo - Normalize texture sizes to power of 2 >> release\README.txt
-        echo - Batch processing support >> release\README.txt
-        echo - Drag and drop interface >> release\README.txt
-        echo - Before/after preview >> release\README.txt
-        
-    - name: Create ZIP archive
-      run: |
-        cd release
-        Compress-Archive -Path * -DestinationPath ../TextureMagic-v${{ github.ref_name }}.zip -Force
-        
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: TextureMagic-Executable
-        path: TextureMagic-*.zip
-        
-    - name: Create Release
-      if: startsWith(github.ref, 'refs/tags/v')
-      uses: softprops/action-gh-release@v2
-      with:
-        files: TextureMagic-*.zip
-        name: TextureMagic ${{ github.ref_name }}
-        body: |
-          ## TextureMagic ${{ github.ref_name }}
-          
-          A texture manipulation tool for GTA V modders.
-          
-          ### Features:
-          - Normalize texture sizes to power of 2
-          - Batch processing support  
-          - Drag and drop interface
-          - Before/after preview
-          
-          ### Installation:
-          1. Download the ZIP file
-          2. Extract to a folder
-          3. Run TextureMagic.exe
-          
-          ### Requirements:
-          - Windows 10 or later
-          
-          **Note:** This is a self-contained executable with no additional dependencies required.
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Restore dependencies
+        run: dotnet restore TextureMagic/TextureMagic.csproj
+
+      - name: Build self-contained executable
+        run: |
+          dotnet publish TextureMagic/TextureMagic.csproj `
+            --configuration Release `
+            --runtime win-x64 `
+            --self-contained true `
+            --output ./publish `
+            -p:PublishSingleFile=true `
+            -p:PublishReadyToRun=true `
+            -p:PublishTrimmed=false `
+            -p:IncludeNativeLibrariesForSelfExtract=true
+
+      - name: Create release folder structure
+        run: |
+          mkdir release
+          copy publish\TextureMagic.exe release\
+          copy TextureMagic\icon.ico release\
+          echo Texture Magic - Texture manipulation tool for GTA V > release\README.txt
+          echo >> release\README.txt
+          echo Features: >> release\README.txt
+          echo - Normalize texture sizes to power of 2 >> release\README.txt
+          echo - Batch processing support >> release\README.txt
+          echo - Drag and drop interface >> release\README.txt
+          echo - Before/after preview >> release\README.txt
+
+      - name: Create ZIP archive
+        run: |
+          cd release
+          Compress-Archive -Path * -DestinationPath ../TextureMagic-v${{ github.ref_name }}.zip -Force
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TextureMagic-Executable
+          path: TextureMagic-*.zip
+
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: TextureMagic-*.zip
+          name: TextureMagic ${{ github.ref_name }}
+          body: |
+            ## TextureMagic ${{ github.ref_name }}
+
+            A texture manipulation tool for GTA V modders.
+
+            ### Features:
+            - Normalize texture sizes to power of 2
+            - Batch processing support
+            - Drag and drop interface
+            - Before/after preview
+
+            ### Installation:
+            1. Download the ZIP file
+            2. Extract to a folder
+            3. Run TextureMagic.exe
+
+            ### Requirements:
+            - Windows 10 or later
+
+            **Note:** This is a self-contained executable with no additional dependencies required.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
