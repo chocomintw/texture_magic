@@ -11,17 +11,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="CodeWalker.Core" Version="1.0.3" />
     <PackageReference Include="Magick.NET-Q8-AnyCPU" Version="14.10.1" />
     <PackageReference Include="Magick.NET.Core" Version="14.10.1" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
     <PackageReference Include="PixiEditor.ColorPicker" Version="3.4.2.2" />
     <PackageReference Include="PixiEditor.ColorPicker.Models" Version="1.0.10" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="CodeWalker.Core">
-      <HintPath>..\ref\CodeWalker.Core.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
 </Project>
