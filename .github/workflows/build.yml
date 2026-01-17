@@ -51,7 +51,7 @@ jobs:
       - name: Create ZIP archive
         run: |
           cd release
-          Compress-Archive -Path * -DestinationPath ../TextureMagic-v${{ github.ref_name }}.zip -Force
+          Compress-Archive -Path ./* -DestinationPath ../TextureMagic-v${{ github.ref_name }}.zip -Force
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
