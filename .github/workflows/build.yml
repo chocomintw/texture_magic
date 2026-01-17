@@ -23,14 +23,14 @@ jobs:
       
     - name: Build self-contained executable
       run: |
-        dotnet publish TextureMagic/TextureMagic.csproj ^
-          --configuration Release ^
-          --runtime win-x64 ^
-          --self-contained true ^
-          --output ./publish ^
-          -p:PublishSingleFile=true ^
-          -p:PublishReadyToRun=true ^
-          -p:PublishTrimmed=false ^
+        dotnet publish TextureMagic/TextureMagic.csproj `
+          --configuration Release `
+          --runtime win-x64 `
+          --self-contained true `
+          --output ./publish `
+          -p:PublishSingleFile=true `
+          -p:PublishReadyToRun=true `
+          -p:PublishTrimmed=false `
           -p:IncludeNativeLibrariesForSelfExtract=true
           
     - name: Create release folder structure
@@ -49,7 +49,7 @@ jobs:
     - name: Create ZIP archive
       run: |
         cd release
-        7z a -tzip ../TextureMagic-v${{ github.ref_name }}.zip .
+        Compress-Archive -Path * -DestinationPath ../TextureMagic-v${{ github.ref_name }}.zip -Force
         
     - name: Upload artifact
       uses: actions/upload-artifact@v4
