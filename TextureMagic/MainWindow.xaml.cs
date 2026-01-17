@@ -37,6 +37,7 @@ namespace TextureMagic
         private string _lastPath;
         private bool _geometryInitialized = false;
         private bool _squareTexture = true;
+        private bool _autoDetectAspectRatio = true;
         private bool _trimImage = false;
         private bool _scaleImage = false;
         private MagickGeometry[] _geometry;
@@ -400,9 +401,27 @@ namespace TextureMagic
 
             if (_scaleImage || _trimImage)
             {
-                uint height = _squareTexture ? _selectedResolition : _selectedResolutionHeight;
+                uint targetWidth = _selectedResolition;
+                uint targetHeight;
 
-                processedImage.Extent(_selectedResolition, height, Gravity.Center, color);
+                if (_autoDetectAspectRatio)
+                {
+                    if (IsSquareTexture(processedImage))
+                    {
+                        targetHeight = targetWidth;
+                    }
+                    else
+                    {
+                        float aspectRatio = (float)processedImage.Height / processedImage.Width;
+                        targetHeight = (uint)(targetWidth * aspectRatio);
+                    }
+                }
+                else
+                {
+                    targetHeight = _squareTexture ? _selectedResolition : _selectedResolutionHeight;
+                }
+
+                processedImage.Extent(targetWidth, targetHeight, Gravity.Center, color);
             }
 
             return processedImage;
@@ -437,6 +456,11 @@ namespace TextureMagic
         private async Task SaveDdsToFile(FileEntry entry, IMagickImage image)
         {
             await File.WriteAllBytesAsync($"{Path.GetDirectoryName(entry.Path)}\\{entry.Index}.dds", image.ToByteArray());
+        }
+
+        private bool IsSquareTexture(MagickImage img)
+        {
+            return img.Width == img.Height;
         }
 
         private MagickImage NormalOptimization(MagickImage img, string name)
@@ -670,21 +694,25 @@ namespace TextureMagic
             _rearrangeTexture = true;
         }
 
-        private void SquareTextureCheckBox_Checked(object sender, RoutedEventArgs e)
+        private void AspectRatioPicker_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            _squareTexture = true;
-            if (ResolutionPickerHeight != null)
+            var selected = (ComboBoxItem)AspectRatioPicker.SelectedValue;
+            if (selected.Name == "AutoAspect")
             {
-                ResolutionPickerHeight.IsEnabled = false;
+                _autoDetectAspectRatio = true;
+                if (ResolutionPickerHeight != null)
+                {
+                    ResolutionPickerHeight.IsEnabled = false;
+                }
             }
-        }
-
-        private void SquareTextureCheckBox_Unchecked(object sender, RoutedEventArgs e)
-        {
-            _squareTexture = false;
-            if (ResolutionPickerHeight != null)
+            else if (selected.Name == "ForceSquare")
             {
-                ResolutionPickerHeight.IsEnabled = true;
+                _autoDetectAspectRatio = false;
+                _squareTexture = true;
+                if (ResolutionPickerHeight != null)
+                {
+                    ResolutionPickerHeight.IsEnabled = false;
+                }
             }
         }
 
@@ -782,12 +810,13 @@ namespace TextureMagic
         private void ToggleResulutionPickerVisibility(bool isVisible)
         {
             var visibility = isVisible ? Visibility.Visible : Visibility.Collapsed;
-            
+
             ResolutionWidthText.Visibility = visibility;
             ResolutionPicker.Visibility = visibility;
             ResolutionHeightText.Visibility = visibility;
             ResolutionPickerHeight.Visibility = visibility;
-            SquareCheckbox.Visibility = visibility;
+            AspectRatioText.Visibility = visibility;
+            AspectRatioPicker.Visibility = visibility;
         }
     }
 }

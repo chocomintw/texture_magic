@@ -44,7 +44,11 @@
             <CheckBox x:Name="Scale" IsChecked="False" HorizontalAlignment="Left" Content="Scale Image..." Margin="0,0,0,8" Checked="ScaleTextureCheckBox_Checked" Unchecked="ScaleTextureCheckBox_Unchecked" />
             
             <!-- Only visible if scale is selected -->
-            <CheckBox x:Name="SquareCheckbox" Visibility="Collapsed" IsChecked="False" HorizontalAlignment="Left" Content="Square Texture" Margin="0,0,0,8" Checked="SquareTextureCheckBox_Checked" Unchecked="SquareTextureCheckBox_Unchecked" />
+            <TextBlock Name="AspectRatioText" Margin="0,0,0,0" Visibility="Collapsed" >Aspect Ratio:</TextBlock>
+            <ComboBox x:Name="AspectRatioPicker" Visibility="Collapsed" SelectedIndex="0" HorizontalAlignment="Stretch" Margin="0,0,0,8" SelectionChanged="AspectRatioPicker_SelectionChanged" Background="#FF202020">
+                <ComboBoxItem Content="Auto (Detect)" x:Name="AutoAspect"></ComboBoxItem>
+                <ComboBoxItem Content="Force Square" x:Name="ForceSquare"></ComboBoxItem>
+            </ComboBox>
             <TextBlock Name="ResolutionWidthText" Margin="0,0,0,0" Visibility="Collapsed">Width:</TextBlock>
             <ComboBox SelectedIndex="1" HorizontalAlignment="Stretch" Name="ResolutionPicker" Visibility="Collapsed" Margin="0,0,0,8" SelectionChanged="ResolutionPicker_SelectionChanged" Background="#FF202020">
                 <ComboBoxItem Content="512" x:Name="x512"></ComboBoxItem>
