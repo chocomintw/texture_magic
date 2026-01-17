@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -44,6 +44,7 @@ namespace TextureMagic
         private IMagickImage[] _masks;
         private CancellationTokenSource _cancellationTokenSource;
         private CompressionMethod _selectedCompression = CompressionMethod.DXT1;
+        private bool _autoDetectCompression = true;
         private FileEntry[] _files = Array.Empty<FileEntry>();
         private readonly BackgroundWorker _worker = new BackgroundWorker();
         private uint _textureBorder = 0;
@@ -378,8 +379,15 @@ namespace TextureMagic
                 SetStatus($"Optimizing {name}");
                 processedImage = NormalOptimization(img, name);
             }
-            
-            processedImage.Settings.Compression = _selectedCompression;
+
+            if (_autoDetectCompression)
+            {
+                processedImage.Settings.Compression = HasTransparency(processedImage) ? CompressionMethod.DXT5 : CompressionMethod.DXT1;
+            }
+            else
+            {
+                processedImage.Settings.Compression = _selectedCompression;
+            }
             IMagickColor<byte> color;
             if (_fillBackGround)
             {
@@ -393,11 +401,37 @@ namespace TextureMagic
             if (_scaleImage || _trimImage)
             {
                 uint height = _squareTexture ? _selectedResolition : _selectedResolutionHeight;
-                
+
                 processedImage.Extent(_selectedResolition, height, Gravity.Center, color);
             }
-            
+
             return processedImage;
+        }
+
+        private bool HasTransparency(MagickImage img)
+        {
+            if (!img.HasAlpha)
+            {
+                return false;
+            }
+
+            using var pixels = img.GetPixels();
+            int stride = Math.Max(1, (int)(img.Width * img.Height / 10000));
+            int pixelIndex = 0;
+            
+            foreach (var pixel in pixels)
+            {
+                if (pixelIndex % stride == 0)
+                {
+                    var color = pixel.ToColor();
+                    if (color != null && color.A < 255)
+                    {
+                        return true;
+                    }
+                }
+                pixelIndex++;
+            }
+            return false;
         }
 
         private async Task SaveDdsToFile(FileEntry entry, IMagickImage image)
@@ -608,14 +642,20 @@ namespace TextureMagic
             string name = selected.Name;
             switch (name)
             {
+                case "Auto":
+                    _autoDetectCompression = true;
+                    break;
                 case "DXT1":
                     _selectedCompression = CompressionMethod.DXT1;
+                    _autoDetectCompression = false;
                     break;
                 case "DXT3":
                     _selectedCompression = CompressionMethod.DXT3;
+                    _autoDetectCompression = false;
                     break;
                 case "DXT5":
                     _selectedCompression = CompressionMethod.DXT5;
+                    _autoDetectCompression = false;
                     break;
             }
         }
