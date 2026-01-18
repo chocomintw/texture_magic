@@ -26,19 +26,15 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore TextureMagic/TextureMagic.csproj
 
-      - name: Build self-contained executable
+      - name: Build lightweight executable
         run: |
           dotnet publish TextureMagic/TextureMagic.csproj `
             --configuration Release `
             --runtime win-x64 `
-            --self-contained true `
+            --self-contained false `
             --output ./publish `
             -p:PublishSingleFile=true `
-            -p:PublishReadyToRun=true `
-            -p:PublishTrimmed=true `
-            -p:TrimMode=link `
-            -p:EnableCompressionInSingleFile=true `
-            -p:IncludeNativeLibrariesForSelfExtract=true
+            -p:PublishReadyToRun=true
 
       - name: Create release folder structure
         shell: pwsh
@@ -61,7 +57,6 @@ jobs:
       - name: Create ZIP archive
         shell: pwsh
         run: |
-          # Use a consistent name for the internal artifact, or append ref safely
           Compress-Archive -Path ./release/* -DestinationPath ./TextureMagic-Release.zip -Force
 
       - name: Upload artifact
@@ -79,7 +74,11 @@ jobs:
           body: |
             ## TextureMagic ${{ github.ref_name }}
 
-            A texture manipulation tool for GTA V modders.
+            A lightweight texture manipulation tool for GTA V modders.
+
+            ### Requirements:
+            - **[.NET 9 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)** (Required)
+            - Windows 10 or later
 
             ### Features:
             - Normalize texture sizes to power of 2
@@ -88,13 +87,8 @@ jobs:
             - Before/after preview
 
             ### Installation:
-            1. Download the ZIP file
-            2. Extract to a folder
-            3. Run TextureMagic.exe
-
-            ### Requirements:
-            - Windows 10 or later
-
-            **Note:** This is a self-contained executable.
+            1. Download and extract the ZIP.
+            2. Ensure you have the .NET 9 Runtime installed.
+            3. Run `TextureMagic.exe`.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
