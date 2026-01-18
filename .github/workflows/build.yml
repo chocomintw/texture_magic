@@ -29,12 +29,12 @@ jobs:
       - name: Build lightweight executable
         run: |
           dotnet publish TextureMagic/TextureMagic.csproj `
-            --configuration Release `
-            --runtime win-x64 `
-            --self-contained false `
-            --output ./publish `
-            -p:PublishSingleFile=true `
-            -p:PublishReadyToRun=true
+          --configuration Release `
+          --runtime win-x64 `
+          --self-contained false `
+          --output ./publish `
+          -p:PublishSingleFile=true `
+          -p:PublishReadyToRun=true
 
       - name: Create release folder structure
         shell: pwsh
