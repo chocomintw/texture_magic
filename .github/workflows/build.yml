@@ -35,7 +35,9 @@ jobs:
             --output ./publish `
             -p:PublishSingleFile=true `
             -p:PublishReadyToRun=true `
-            -p:PublishTrimmed=false `
+            -p:PublishTrimmed=true `
+            -p:TrimMode=link `
+            -p:EnableCompressionInSingleFile=true `
             -p:IncludeNativeLibrariesForSelfExtract=true
 
       - name: Create release folder structure
